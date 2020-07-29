@@ -1,0 +1,23 @@
+{# -*- coding: utf-8 -*- #}
+
+{% extends 'base.tmpl' %}
+
+{% block main_content %}
+<div class="authorindex page-body">
+    {% if items %}
+        <div class="authorindex-title">{{ messages("Authors") }}</div>
+        <div class="authors-postlist">
+        <ul>
+        {% for text, link in items %}
+            {% if text not in hidden_authors %}
+                <a class="ui large basic label" href="{{ link }}">
+                <i class="user outline icon"></i>
+                {{ text|e }}
+                </a>
+            {% endif %}
+        {% endfor %}
+        </ul>
+        </div>
+    {% endif %}
+</div>
+{% endblock main_content %}

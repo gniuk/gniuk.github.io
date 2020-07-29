@@ -1,0 +1,10 @@
+cache
+.doit.db
+__pycache__
+output
+.DS_Store
+id_rsa
+id_rsa.pub
+.doit.db.bak
+.doit.db.dat
+.doit.db.dir

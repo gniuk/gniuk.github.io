@@ -1,0 +1,55 @@
+{# -*- coding: utf-8 -*- #}
+
+{% macro html_title() %}
+    {% if title and not post.meta('hidetitle') %}
+    <h1 class="post-title" itemprop="headline">
+        <a href="{{ post.permalink() }}">{{ post.title()|e }}</a>
+    </h1>
+    {% endif %}
+{% endmacro %}
+
+{% macro html_translations(post) %}
+    {% if post.translated_to|length > 1 %}
+    <div class="posttrans ui message">
+        <span class="title">{{ messages("Also available in:") }}
+        {% for langname in translations|sort %}
+            {% if langname != lang and post.is_translation_available(langname) %}
+            <span><a href="{{ post.permalink(langname) }}" rel="alternate" hreflang="{{ langname }}">{{ messages("LANGUAGE", langname) }}</a></span>
+            {% endif %}
+        {% endfor %}
+        </span>
+    </div>
+    {% endif %}
+{% endmacro %}
+
+{% macro html_post_header() %}
+    {{ html_title() }}
+    <div class="ui large horizontal link list post-meta">
+        <span class="item">By
+        {% if author_pages_generated %}
+            <a href="{{ _link('author', post.author()) }}">{{ post.author()|e }}</a>
+        {% else %}
+            {{ post.author()|e }}
+        {% endif %}
+        </span>
+        {% if not post.meta('password') and edit_prefix %}
+            <span class="item">
+                <a href="{{ edit_prefix + post.source_path }}" target="_blank" title="Edit on GitHub">Edit</a>
+            </span>
+        {% endif %}
+        <span class="item">
+            <time datetime="{{ post.formatted_date('webiso') }}">
+            {{ post.formatted_date(date_format)|e }}
+            </time>
+        </span>
+        {% if post.tags %}
+            <span class="item">
+            {% for tag in post.tags %}
+                {% if tag not in hidden_tags %}
+                    <a href="{{ _link('tag', tag) }}">{{ tag|e }}</a>
+                {% endif %}
+            {% endfor %}
+            </span>
+        {% endif %}
+    </div>
+{% endmacro %}

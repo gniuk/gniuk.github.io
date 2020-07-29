@@ -1,0 +1,41 @@
+env:
+  matrix:
+  - LANG=zh_CN.UTF-8
+  global:
+    secure: GieNjltv9ZZsVa3X+YnodOTuW5zUzgNdBiYain7JHPguHsCwDOfdahvkl1qdNe6rpzTEWmKazrM6Q/BlZDQHS84B/qIri6Mi/+Dm4QIfI82aZA/NYTqa+gVlyYd5M5T6Oh9SeNvqCCH2LamyF0JTg3BIzJFQ3lResHg9uci61c5bhb2kkKp88wxDf+UUHxqQO5G3TDujW1y999IQnBav7c6c8EaWLyssyRCY3Bfa93R5uzeSTYlnyKI9Gzlb2xRTuNqhYa7c/0s/FtcvTGx72Y5vgYe89cr2OKEg8cfOdIiqZsx8hL9teUDLJ55mv+gtzusASfMfFGgiVeqce5knulAW0bTshcdcNVrOE+GL60cgZHfur5+T3aW1bARf6Dk1A29qbxdw2rISZVp9d6Wr6+fSSpmDAWcZ+KAzmBF5NsgA1qYzx14HnHWlKaRS8BPTtndePOCVZUVnCIQ2v9X6uT0TM+k9ssrJqAvDAKvkFSac02ZNqO1sloH255zfuj30EZTPQotiNHHwLcuEwhG1tz3nHNDdA2bcNkYHyYlfTceK9pO9Z2vzV3ZLDK9WAvIxpTCThZeZ8euNFu5ELWYddGFWD1ZQLmErU0dXBvwBZZS0IGmRcyIeHK2giNLMsxb9UTnBsimoWQcf/BOdRI/L18zmTIijqPc1L6EyuBjDCGo=
+language: python
+sudo: false
+cache:
+  directories:
+  - "$HOME/.cache/pip"
+git:
+  depth: 3
+branches:
+  only:
+  - src
+python:
+- 3.8
+install:
+- pip install 'Nikola[extras]'
+- pip install Markdown==3.2.2
+script:
+- nikola build
+- find output/galleries -type f -name "*.thumbnail.*" -delete
+- nikola build -a render_galleries
+- git clone --depth 1 https://github.com/mayswind/AriaNg-DailyBuild.git output/aria2
+- rm -rf output/aria2/.git
+deploy:
+  provider: pages
+  skip_cleanup: true
+  github_token: "$GITHUB_TOKEN"
+  keep_history: false
+  local_dir: output
+  target_branch: master
+  on:
+    branch: src
+notifications:
+  email:
+    recipients:
+    - gniuk@sina.com
+    on_success: never
+    on_failure: always
