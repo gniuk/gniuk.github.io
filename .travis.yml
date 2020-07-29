@@ -20,7 +20,7 @@ install:
 - pip install Markdown==3.2.2
 script:
 - nikola build
-- find output/galleries -type f -name "*.thumbnail.*" -delete
+- find output/galleries -type f -name "*.thumbnail.*" -delete || echo "dont fail, can we"
 - nikola build -a render_galleries
 - git clone --depth 1 https://github.com/mayswind/AriaNg-DailyBuild.git output/aria2
 - rm -rf output/aria2/.git
