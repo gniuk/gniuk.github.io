@@ -1341,7 +1341,7 @@ WARN_ABOUT_TAG_METADATA = False
 # Put in global_context things you want available on all your templates.
 # It can be anything, data, functions, modules, etc.
 GLOBAL_CONTEXT = {
-    "dw_notice": "Setup using ashfinal's tmpl",
+    "dw_notice": "gniuk's note taking place",
     "edit_prefix": "https://github.com/gniuk/gniuk.github.io/edit/src/",
     "dw_social": {
         #  "facebook": "#",
