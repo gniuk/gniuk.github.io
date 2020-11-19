@@ -5,6 +5,10 @@ p {
     max-width: 80ch;
 }
 
+h2 {
+    color: dodgerblue;
+}
+
 kbd {
     font-family: Arial, sans-serif;
     padding:0 .25rem 0 .25rem;
@@ -26,7 +30,7 @@ kbd {
 
 .code-plain1 {
     color: red;
-    background-color: #dddddd;
+    background-color: #bbbbbb;
 }
 
 pre
@@ -35,9 +39,27 @@ pre
     tab-size:2;
     padding:.5rem;
     margin:.5rem;
-    max-width: 80ch;
+    max-width: 100ch;
     white-space:pre-wrap;
     border:solid thin grey;
     border-radius: 1rem;
     background-color:#eeeeee;
+}
+
+code
+{
+    font-family: Consolas, Menlo, monospace;
+    white-space:pre-wrap;
+    color:red;
+}
+
+code.parea {
+    background-color:#3a3e13;
+}
+
+code.elisp_defun
+{
+    font-weight:bold;
+    color:#b22222;
+    background-color:transparent;
 }
