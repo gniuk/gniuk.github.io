@@ -19,10 +19,10 @@
                 By gniuk, isgniuk@gmail.com. Date:
                 <time>2020-11-18</time>
                 . Last updated:
-                <time>2020-11-19</time>
+                <time>2020-11-20</time>
                 .
             </div>
-            <p style="font-size:24px;">
+            <p>
                 Emacs comes with powerful and useful functions to align text to a specific column, by regexp.
             </p>
             <p>
@@ -45,7 +45,7 @@
 #define ABCDE     0xabcde
             </pre>
             <h2>== Howto ==</h2>
-            <p>0. Recommended settings before start: (setq align-to-tab-stop nil) <kbd>C</kbd>-<kbd>x</kbd> <kbd>C</kbd>-<kbd>e</kbd>, if you want tabs treated the same as spaces.</p>
+            <p>0. Recommended settings before start: (setq align-to-tab-stop nil)<kbd>C</kbd>-<kbd>x</kbd> <kbd>C</kbd>-<kbd>e</kbd>, if you want tabs treated the same as spaces. (defalias 'ar 'align-regexp)<kbd>C</kbd>-<kbd>x</kbd> <kbd>C</kbd>-<kbd>e</kbd> to help type align-regexp easily.</p>
             <p>1. Select the target lines.</p>
             <p>2. <kbd>C</kbd>-<kbd>u</kbd> <kbd>M</kbd>-<kbd>x</kbd> <code class="elisp_defun">align-regexp</code> <kbd>RET</kbd>, then choose
                 <code class="parea">\(\s-*\)␣[A-Z]</code>,
@@ -69,7 +69,7 @@
             <p><mark>Note</mark>: ␣ means exactly one space.</p>
             <h2>== Explain ==</h2>
             <p>First let's look at the function prototype of align-regexp.</p>
-            <p><kbd>C</kbd>-<kbd>h</kbd> <kbd>f</kbd> align-regexp <kbd>RET</kbd></p>
+            <p><kbd>C</kbd>-<kbd>h</kbd> <kbd>f</kbd> <code class="elisp_defun">align-regexp</code> <kbd>RET</kbd></p>
             <p><code class="parea">(align-regexp BEG END REGEXP &optional GROUP SPACING REPEAT)</code></p>
             <p>When used interactively, this function need 4 args entered by the user in the minibuffer:</p>
             <ul>
@@ -81,9 +81,9 @@
             <p>REGEXP is the field matched to align with. The character need to be aligned is indicated by this REGEXP. Read on to find out how it works.</p>
             <p>In our example, the pattern <code class="parea">\(\s-*\)␣[A-Z]</code> matches the following fields:</p>
             <pre class="code-bg0">
-#define<span class="code-plain0">   </span><span class="code-plain1"> A</span>    0x41<br>
-#define<span class="code-plain0"> </span><span class="code-plain1"> W</span>HAT_EVER  0x1BADB002<br>
-#define<span class="code-plain0">    </span><span class="code-plain1"> A</span>BCDE     0xabcde
+#define<span class="boxed0"><span class="code-plain0">   </span><span class="code-plain1"> A</span></span>    0x41<br>
+#define<span class="boxed0"><span class="code-plain0"> </span><span class="code-plain1"> W</span></span>HAT_EVER  0x1BADB002<br>
+#define<span class="boxed0"><span class="code-plain0">    </span><span class="code-plain1"> A</span></span>BCDE     0xabcde
             </pre>
             <p>The subexpression <code class="parea">\(\s-*\)</code> is entered automatically by emacs when we invoke align-regexp with prefix args(i.e. C-u). The matched place in <code class="parea">\(\)</code> is where to insert or truncate characters to fulfill the alignment, and this is usually space field. <code class="parea">\s-</code> means whitespace(space or tab), same as <code class="parea">\s␣</code> and <code class="parea">␣</code>(if we have no tabs). <code class="parea">\s-*</code> means zero or more spaces.</p>
             <p>So <code class="parea">\(\s-*\)</code> matches the lighter background part(space field), and <code class="parea">␣[A-Z]</code> matches the darker part(a SPACE along with an UPPER character).</p>
@@ -111,9 +111,9 @@
             </p>
             <p>Note there is no space between ) and [ this time. <code class="parea">\(\s-+\)</code> means 1 or more spaces. This REGEXP matches as following.</p>
             <pre class="code-bg0">
-#define<span class="code-plain0">    </span><span class="code-plain1">A</span><span class="code-plain0">    </span><span class="code-plain1">0</span>x41<br>
-#define<span class="code-plain0">  </span><span class="code-plain1">W</span>HAT_EVER<span class="code-plain0">  </span><span class="code-plain1">0</span>x1BADB002<br>
-#define<span class="code-plain0">     </span><span class="code-plain1">A</span>BCDE<span class="code-plain0">     </span><span class="code-plain1">0</span>xabcde
+#define<span class="boxed0"><span class="code-plain0">    </span><span class="code-plain1">A</span></span><span class="boxed0"><span class="code-plain0">    </span><span class="code-plain1">0</span></span>x41<br>
+#define<span class="boxed0"><span class="code-plain0">  </span><span class="code-plain1">W</span></span>HAT_EVER<span class="boxed0"><span class="code-plain0">  </span><span class="code-plain1">0</span></span>x1BADB002<br>
+#define<span class="boxed0"><span class="code-plain0">     </span><span class="code-plain1">A</span></span>BCDE<span class="boxed0"><span class="code-plain0">     </span><span class="code-plain1">0</span></span>xabcde
             </pre>
             <p>The difference is the space field matched and the character chosen to be aligned. All spaces are now in the \(\) group, we need one space in the final result, so the third arg SPACING need to be 1 instead of 0. If you need more spaces just provide the value you want.</p>
             <h2>== Align to the right ==</h2>
@@ -134,9 +134,9 @@
             <p><code class="parea">\s-+</code> means 1 or more spaces, <code class="parea">[A-Z_]+</code> matches the UPPER and UPPER_WORD.</p>
             <p>So this matches the following(the lighter part):</p>
             <pre class="code-bg0">
-#define<span class="code-plain0">    A</span><span class="code-plain1"> </span>   0x41
-#define<span class="code-plain0">  WHAT_EVER</span><span class="code-plain1"> </span> 0x1BADB002
-#define<span class="code-plain0">     ABCDE</span><span class="code-plain1"> </span>     0xabcde
+#define<span class="boxed0"><span class="code-plain0">    A</span></span><span class="code-plain1"> </span>   0x41
+#define<span class="boxed0"><span class="code-plain0">  WHAT_EVER</span></span><span class="code-plain1"> </span> 0x1BADB002
+#define<span class="boxed0"><span class="code-plain0">     ABCDE</span></span><span class="code-plain1"> </span>     0xabcde
             </pre>
             <p>Now we set arg GROUP to -1 which means justify, according to the source code docs, justify means DO NOT delete non-space characters in the group and only insert or delete spaces in the initial spaces. <strong>The character after the last UPPER(the last char in \(\)) is chosen to be the alignment character</strong>, i.e. the space in darker background. Spaces are inserted or deleted before the first UPPER to fulfill the alignment. In this way we get right-alighment.
             </p>
@@ -208,7 +208,7 @@ struct stat64 {
         unsigned int       __unused5;
 };
             </pre>
-            <p>------------------------------------------------------------------------------------------</p>
+            <p>----------------------------------------------------------------------------------------------------</p>
             <p>②</p>
             <pre class="code-bg0">
 my @primes = (

@@ -19,7 +19,7 @@ kbd {
 }
 
 .code-plain0 {
-    color: #0a5420;
+    color: #f2241f;
     background-color: #dddddd;
 }
 
@@ -48,7 +48,8 @@ code
 }
 
 code.parea {
-    background-color:#3a3e13;
+    color: #f2241f;
+    background-color: lightblue;
 }
 
 code.elisp_defun
@@ -56,4 +57,8 @@ code.elisp_defun
     font-weight:bold;
     color:#b22222;
     background-color:transparent;
+}
+
+.boxed0 {
+    border: 1px solid black;
 }
