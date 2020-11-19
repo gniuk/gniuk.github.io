@@ -1,0 +1,59 @@
+@charset "utf-8";
+
+p {
+    max-width: 80ch;
+}
+
+kbd {
+    font-family: Arial, sans-serif;
+    padding:0 .25rem 0 .25rem;
+    border:solid 1px grey;
+    border-radius:4px;
+    color: white;
+    background-color:black;
+    box-shadow:2px 2px 2px 2px silver;
+}
+
+.code-bg0 {
+    background-color:hsl(120,100%,98%);
+}
+
+.code-plain0 {
+    color: #0a5420;
+    background-color: #dddddd;
+}
+
+.code-plain1 {
+    color: red;
+    background-color: #bbbbbb;
+}
+
+pre
+{
+    font-family: Consolas, Menlo, monospace;
+    tab-size:2;
+    padding:.5rem;
+    margin:.5rem;
+    max-width: 100ch;
+    white-space:pre-wrap;
+    border:solid thin grey;
+    border-radius: 1rem;
+    background-color:#eeeeee;
+}
+
+code
+{
+    font-family: Consolas, Menlo, monospace;
+    white-space:pre-wrap;
+}
+
+code.parea {
+    background-color:#3a3e13;
+}
+
+code.elisp_defun
+{
+    font-weight:bold;
+    color:#b22222;
+    background-color:transparent;
+}
