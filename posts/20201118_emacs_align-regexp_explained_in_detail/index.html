@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="zh_cn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="generator" content="Nikola (getnikola.com)">
+<title>Emacs align-regexp explained in detail with examples - gniuk's notes</title>
+<link rel="apple-touch-icon" sizes="180x180" href="../../apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../../favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="../../favicon-16x16.png">
+<link rel="mask-icon" href="../../safari-pinned-tab.svg" color="#5bbad5">
+<link href="../../assets/css/semantic.min.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/jquery.fancybox.min.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
+<link rel="canonical" href="https://gniuk.github.io/posts/20201118_emacs_align-regexp_explained_in_detail/">
+<meta name="author" content="gniuk">
+<link rel="alternate" hreflang="en" href="../../en/posts/20201118_emacs_align-regexp_explained_in_detail/">
+<link rel="stylesheet" type="text/css" href="../../assets/css/gitalk.css">
+</head>
+<body>
+        <div class="ui grid">
+            <div class="computer only three wide column no-print">
+                <div id="left-side">
+                </div>
+            </div>
+            <div class="ten wide computer sixteen wide tablet sixteen wide mobile column">
+                        <div class="ui inline cookie nag no-print">
+            <span class="title">gniuk's note taking place</span>
+            <i class="close icon"></i>
+        </div>
+    <header id="header" class="no-print"><div class="ui grid">
+        <div class="computer only tablet only sixteen wide column">
+            <div class="ui large secondary stackable menu">
+                <a class="header item brand-logo" href="https://gniuk.github.io/">
+                    gniuk's notes
+                </a>
+                        <a class="item" href="../../">Posts</a>
+                        <a class="item" href="../../listings/">Code</a>
+                        <a class="item" href="../../galleries/">Gallery</a>
+                        <a class="item" href="../../categories/">Tags</a>
+                        <a class="item" href="../../archive.html">Archive</a>
+                <div class="right menu">
+                    <a class="item" href="../../rss.xml"><i class="rss icon"></i>RSS</a>
+                </div>
+            </div>
+        </div>
+        <div class="mobile only sixteen wide column">
+            <div class="ui fluid accordion vertical menu">
+                <div class="item">
+                    <a class="title">gniuk's notes</a>
+                    <div class="content">
+                                <a class="item" href="../../">Posts</a>
+                                <a class="item" href="../../listings/">Code</a>
+                                <a class="item" href="../../galleries/">Gallery</a>
+                                <a class="item" href="../../categories/">Tags</a>
+                                <a class="item" href="../../archive.html">Archive</a>
+                        <a class="item" href="../../rss.xml"><i class="rss icon"></i>RSS</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    </header><main id="main"><div id="main-content">
+<div class="postpage post-text page-body" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <h1 class="post-title" itemprop="headline">
+        <a href=".">Emacs align-regexp explained in detail with examples</a>
+    </h1>
+
+    <div class="ui large horizontal link list post-meta">
+        <span class="item">By
+            gniuk
+        </span>
+            <span class="item">
+                <a href="https://github.com/gniuk/gniuk.github.io/edit/src/posts/20201118_Emacs_align-regexp_explained_in_detail.html" target="_blank" title="Edit on GitHub">Edit</a>
+            </span>
+        <span class="item">
+            <time datetime="2020-11-18T23:00:00+08:00">
+            2020-11-18 23:00
+            </time></span>
+            <span class="item">
+                    <a href="../../categories/align/">align</a>
+                    <a href="../../categories/align-regexp/">align-regexp</a>
+                    <a href="../../categories/emacs/">emacs</a>
+            </span>
+    </div>
+
+    
+    <div class="post-content" itemprop="article text">
+        <div id="post-content">
+        <main><h1>Emacs align-regexp explained in detail with examples</h1>
+            <div class="authorline">
+                By gniuk, isgniuk@gmail.com. Date:
+                <time>2020-11-18</time>
+                . Last updated:
+                <time>2020-11-20</time>
+                .
+            </div>
+            <p>~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</p>
+            <p>
+                Emacs comes with powerful and useful functions to align text to a specific column, by regexp.
+            </p>
+            <p>
+                <strong>Align</strong>
+                is a simplified
+                <strong>align-regexp</strong>
+                with some predefined rules applying to current major mode. Sometimes it doesn't work well. So we focus on <strong>align-regexp</strong> here.
+            </p>
+            <h2>== Example ==</h2>
+            <p>Take the following unreasonable code as an example.</p>
+            <pre class="code-bg0">
+#define    A    0x41
+#define  WHAT_EVER  0x1BADB002
+#define     ABCDE     0xabcde
+            </pre>
+            <p>We want it aligned as follows:</p>
+            <pre class="code-bg0">
+#define A         0x41
+#define WHAT_EVER 0x1BADB002
+#define ABCDE     0xabcde
+            </pre>
+            <h2>== Howto ==</h2>
+            <p>0. Recommended settings before start:<br>
+                     <code class="elisp_defun">(setq align-to-tab-stop nil)</code><kbd>C</kbd>-<kbd>x</kbd> <kbd>C</kbd>-<kbd>e</kbd> if you want tabs treated the same as spaces.<br>
+                     <code class="elisp_defun">(defalias 'ar 'align-regexp)</code><kbd>C</kbd>-<kbd>x</kbd> <kbd>C</kbd>-<kbd>e</kbd> to help type align-regexp easily.<br>
+                    Or just put them in your emacs init file.</p>
+            <p>1. Select the target lines.</p>
+            <p>2. <kbd>C</kbd>-<kbd>u</kbd> <kbd>M</kbd>-<kbd>x</kbd> <code class="elisp_defun">align-regexp</code> <kbd>RET</kbd>, then choose
+                <code class="parea">\(\s-*\)␣[A-Z]</code>,
+                <code class="parea">1</code>,
+                <code class="parea">0</code>,
+                <code class="parea">n</code>
+            </p>
+            <p>3. Select again and: <kbd>C</kbd>-<kbd>u</kbd> <kbd>M</kbd>-<kbd>x</kbd> <code class="elisp_defun">align-regexp</code> <kbd>RET</kbd>, then choose
+                <code class="parea">\(\s-*\)␣0</code>,
+                <code class="parea">1</code>,
+                <code class="parea">0</code>,
+                <code class="parea">n</code>
+            </p>
+            <p>Or <i>the previous two steps done in just one command:</i><br><kbd>C</kbd>-<kbd>u</kbd> <kbd>M</kbd>-<kbd>x</kbd> <code class="elisp_defun">align-regexp</code> <kbd>RET</kbd>, then choose
+                <code class="parea">\(\s-*\)␣[A-Z0]</code>,
+                <code class="parea">1</code>,
+                <code class="parea">0</code>,
+                <code class="parea">y</code>
+                <br>
+                Even more simple one:<br><kbd>C</kbd>-<kbd>u</kbd> <kbd>M</kbd>-<kbd>x</kbd> <code class="elisp_defun">align-regexp</code> <kbd>RET</kbd>, then choose
+                <code class="parea">\(\s-*\)␣</code>,
+                <code class="parea">1</code>,
+                <code class="parea">0</code>,
+                <code class="parea">y</code>
+            </p>
+            <p><mark>Note</mark>: <code class="parea">␣</code> means exactly one space.</p>
+            <h2>== Explain ==</h2>
+            <p>First let's look at the function prototype of align-regexp.</p>
+            <p><kbd>C</kbd>-<kbd>h</kbd> <kbd>f</kbd> <code class="elisp_defun">align-regexp</code> <kbd>RET</kbd></p>
+            <p><code class="parea">(align-regexp BEG END REGEXP &amp;optional GROUP SPACING REPEAT)</code></p>
+            <p>When used interactively, this function need 4 args entered by the user in the minibuffer:</p>
+            <ul>
+<li>REGEXP:  <code class="parea"><mark><b>\(\s-*\) [A-Z]</b></mark>, 1, 0, n</code>
+</li>
+                <li>GROUP:   <code class="parea">\(\s-*\) [A-Z], <mark><b>1</b></mark>, 0, n</code>
+</li>
+                <li>SPACING:<code class="parea">\(\s-*\) [A-Z], 1, <mark><b>0</b></mark>, n</code>
+</li>
+                <li>REPEAT:  <code class="parea">\(\s-*\) [A-Z], 1, 0, <mark><b>n</b></mark></code>
+</li>
+            </ul>
+<p><strong>REGEXP</strong> is the field matched to align with. The character need to be aligned is indicated by this REGEXP. Read on to find out how it works.</p>
+            <p>In our example, the pattern <code class="parea">\(\s-*\)␣[A-Z]</code> matches the as follows:</p>
+            <pre class="code-bg0">
+#define<span class="boxed0"><span class="code-plain0">   </span><span class="code-plain1"> A</span></span>    0x41<br>
+#define<span class="boxed0"><span class="code-plain0"> </span><span class="code-plain1"> W</span></span>HAT_EVER  0x1BADB002<br>
+#define<span class="boxed0"><span class="code-plain0">    </span><span class="code-plain1"> A</span></span>BCDE     0xabcde
+            </pre>
+            <p>The subexpression <code class="parea">\(\s-*\)</code> is entered automatically by emacs when we invoke align-regexp with prefix C-u. <mark>The matched place in <code class="parea">\(\)</code> is where to insert or truncate characters to fulfill the alignment</mark>, and this is usually space field. <code class="parea">\s-</code> means whitespace(space or tab), same as <code class="parea">\s␣</code> and <code class="parea">␣</code>(if we have no tabs). <code class="parea">\s-*</code> means zero or more spaces.</p>
+            <p>So <code class="parea">\(\s-*\)</code> matches the lighter background part(space field), and <code class="parea">␣[A-Z]</code> matches the darker part(a space along with an UPPER character).</p>
+            <p>
+                Now let's talk about align. <mark>Align means make the first character exactly after the <code class="parea">\(\)</code> subexpression aligned at the same column</mark>.
+                In our case, this character is the SPACE before the UPPER character. So these spaces on different lines are to be aligned.
+            </p>
+            <p>
+                The second arg <strong>GROUP</strong> is parenthesis group to modify. When invoked interactively there is usually exactly one parenthesis group <code class="parea">\(\)</code>. So just leave default value 1. In some case, we need this to be -1, we will talk about it later when we do a right-alignment.
+            </p>
+            <p>
+                The third arg <strong>SPACING</strong> means the amount of spaces we want in the space field. In our case we need all the spaces in the parenthesis group to be deleted, so we provide 0.
+            </p>
+            <p>
+                The fourth arg <strong>REPEAT</strong> means whether we want repeating the match and alignment. If we need exactly one match and alignment, then we provide n. See the next section to get more on REPEAT.
+            </p>
+            <h2>== Get a deep understanding of \(\) ==</h2>
+            <p>Let's get a deep understanding of <code class="parea">\(\)</code>. Use the following REGEXP pattern varient to get the alignments done.</p>
+            <p>
+                <kbd>C</kbd>-<kbd>u</kbd> <kbd>M</kbd>-<kbd>x</kbd> <code class="elisp_defun">align-regexp</code> <kbd>RET</kbd>,
+                <code class="parea">\(\s-+\)[A-Z0]</code>,
+                <code class="parea">1</code>,
+                <code class="parea">1</code>,
+                <code class="parea">y</code>
+            </p>
+            <p>Note there is no space between ) and [ this time.<br><code class="parea">\s-+</code> means 1 or more whitespaces, equals to <code class="parea">\s-*␣</code> if no tabs. This REGEXP matches as follows:</p>
+            <pre class="code-bg0">
+#define<span class="boxed0"><span class="code-plain0">    </span><span class="code-plain1">A</span></span><span class="boxed0"><span class="code-plain0">    </span><span class="code-plain1">0</span></span>x41<br>
+#define<span class="boxed0"><span class="code-plain0">  </span><span class="code-plain1">W</span></span>HAT_EVER<span class="boxed0"><span class="code-plain0">  </span><span class="code-plain1">0</span></span>x1BADB002<br>
+#define<span class="boxed0"><span class="code-plain0">     </span><span class="code-plain1">A</span></span>BCDE<span class="boxed0"><span class="code-plain0">     </span><span class="code-plain1">0</span></span>xabcde
+            </pre>
+            <p>The difference is the space field matched and the character chosen to be aligned. All spaces are now in the <code class="parea">\(\)</code> group, and we need one space in the final result, so the third arg SPACING need to be 1 instead of 0. If you need more spaces just provide the value you want. The REGEXP matches two columns and both need aligned, so REPEAT=y.</p>
+            <p>
+                After understanding how align works, the REGEXP can be simplified:<br><kbd>C</kbd>-<kbd>u</kbd> <kbd>M</kbd>-<kbd>x</kbd> <code class="elisp_defun">align-regexp</code> <kbd>RET</kbd>,
+                <code class="parea">\(\s-+\)</code>,
+                <code class="parea">1</code>,
+                <code class="parea">1</code>,
+                <code class="parea">y</code>
+                <br>
+                This means make whatever character immediately after the last space aligned.<br>
+                The regexp matches as follows. Notice the subtile difference of the matched part.<br></p>
+<pre class="code-bg0">
+#define<span class="boxed0"><span class="code-plain0">    </span></span><span class="code-plain1">A</span><span class="boxed0"><span class="code-plain0">    </span></span><span class="code-plain1">0</span>x41<br>
+#define<span class="boxed0"><span class="code-plain0">  </span></span><span class="code-plain1">W</span>HAT_EVER<span class="boxed0"><span class="code-plain0">  </span></span><span class="code-plain1">0</span>x1BADB002<br>
+#define<span class="boxed0"><span class="code-plain0">     </span></span><span class="code-plain1">A</span>BCDE<span class="boxed0"><span class="code-plain0">     </span></span><span class="code-plain1">0</span>xabcde
+                </pre>
+            
+            <h2>== Align to the right ==</h2>
+            <p>Now let's talk about alignment to the right side. Say we need the following alignment.</p>
+            <pre class="code-bg0">
+#define         A    0x01
+#define WHAT_EVER    0x1BADB002
+#define     ABCDE    0xabcde
+            </pre>
+            <p>We can do it like this:
+                <kbd>C</kbd>-<kbd>u</kbd> <kbd>M</kbd>-<kbd>x</kbd> <code class="elisp_defun">align-regexp</code> <kbd>RET</kbd>,
+                <code class="parea">\(\s-+[A-Z_]+\)</code>,
+                <code class="parea">-1</code>,
+                <code class="parea">1</code>,
+                <code class="parea">n</code>
+                .
+            </p>
+            <p><code class="parea">\s-+</code> means 1 or more spaces. <code class="parea">[A-Z_]+</code> matches the UPPER and UPPER_WORD.</p>
+            <p>So this regexp matches as follows(the part in box on each line):</p>
+            <pre class="code-bg0">
+#define<span class="boxed0"><span class="code-plain0">    A</span></span><span class="code-plain1"> </span>   0x41
+#define<span class="boxed0"><span class="code-plain0">  WHAT_EVER</span></span><span class="code-plain1"> </span> 0x1BADB002
+#define<span class="boxed0"><span class="code-plain0">     ABCDE</span></span><span class="code-plain1"> </span>     0xabcde
+            </pre>
+            <p>Now we set arg GROUP to -1 which means justify. According to the source code docs, justify means DO NOT delete non-whitespace characters in the group and only insert or delete spaces of the initial spaces in the group. <strong>The character after the last UPPER is chosen to be the alignment character(the char exactly after <code class="parea">\(\)</code>)</strong>, i.e. the space in darker background. With GROUP = -1, spaces are inserted or deleted at the left side of the first UPPER to fulfill the alignment. In this way we get right-aligned.
+            </p>
+            <p>
+                We can match more characters before <code class="parea">\(\)</code>, e.g. <code class="parea">.*␣\(\s-*[A-Z_]+\)</code>, but this is not necessary in our case. If the REGEXP matches more fields and not all them are our target fields, the REGEXP should be changed to match more characters to distinguish the fields.
+                <!--
+                     1. There are three answers of which not all are correct.
+                     2. There are three answers not all of which are correct.
+                     3. There are three answers which not all of them are correct. 🙁
+                     y. There are three answers and not all of them are correct. ✓ 😃
+                -->
+            </p>
+            <p>Post: use
+                <kbd>C</kbd>-<kbd>u</kbd> <kbd>M</kbd>-<kbd>x</kbd> <code class="elisp_defun">align-regexp</code> <kbd>RET</kbd>,
+                <code class="parea">\(\s-*\)0x</code>,
+                <code class="parea">1</code>,
+                <code class="parea">4</code>,
+                <code class="parea">n</code>
+                to do a left side alignment for the <code class="code-plain0">0x</code> part. Or
+                <kbd>C</kbd>-<kbd>u</kbd> <kbd>M</kbd>-<kbd>x</kbd> <code class="elisp_defun">align-regexp</code> <kbd>RET</kbd>,
+                <code class="parea">\(\s-*0x\)</code>,
+                <code class="parea">-1</code>,
+                <code class="parea">4</code>,
+                <code class="parea">n</code>
+                to do a right side alignment for the <code class="code-plain0">0x</code> part.
+            </p>
+            <h2>== More practice ==</h2>
+            <p>①</p>
+            <pre class="code-bg0">
+struct stat64 {
+        unsigned long long st_dev;      /* Device.  */
+        unsigned long long st_ino;      /* File serial number.  */
+        unsigned int    st_mode;        /* File mode.  */
+        unsigned int    st_nlink;       /* Link count.  */
+        unsigned int    st_uid;         /* User ID of the file's owner.  */
+        unsigned int    st_gid;         /* Group ID of the file's group. */
+        unsigned long long st_rdev;     /* Device number, if device.  */
+        unsigned long long __pad1;
+        long long       st_size;        /* Size of file, in bytes.  */
+        int             st_blksize;     /* Optimal block size for I/O.  */
+        int             __pad2;
+        long long       st_blocks;      /* Number 512-byte blocks allocated. */
+        int             st_atime;       /* Time of last access.  */
+        unsigned int    st_atime_nsec;
+        int             st_mtime;       /* Time of last modification.  */
+        unsigned int    st_mtime_nsec;
+        int             st_ctime;       /* Time of last status change.  */
+        unsigned int    st_ctime_nsec;
+        unsigned int    __unused4;
+        unsigned int    __unused5;
+};
+            </pre>
+            <p>Mark all the lines inside {} before aligh-regexp. (Tips: if you use Evil, <code class="elisp_defun">vi{</code>; if you use expand-region, M-x <code class="elisp_defun">er/mark-inside-pairs</code>.)</p>
+            <p>
+                <kbd>C</kbd>-<kbd>u</kbd> <kbd>M</kbd>-<kbd>x</kbd> <code class="elisp_defun">align-regexp</code> <kbd>RET</kbd>,
+                <code class="parea">\(\s-*\)␣[s_]</code>,
+                <code class="parea">1</code>,
+                <code class="parea">0</code>,
+                <code class="parea">n</code>
+            </p>
+            <p>
+                <kbd>C</kbd>-<kbd>u</kbd> <kbd>M</kbd>-<kbd>x</kbd> <code class="elisp_defun">align-regexp</code> <kbd>RET</kbd>,
+                <code class="parea">\(\s-*\)␣/</code>,
+                <code class="parea">1</code>,
+                <code class="parea">4</code>,
+                <code class="parea">n</code>
+            </p>
+            <pre class="code-bg0">
+struct stat64 {
+        unsigned long long st_dev;         /* Device.  */
+        unsigned long long st_ino;         /* File serial number.  */
+        unsigned int       st_mode;        /* File mode.  */
+        unsigned int       st_nlink;       /* Link count.  */
+        unsigned int       st_uid;         /* User ID of the file's owner.  */
+        unsigned int       st_gid;         /* Group ID of the file's group. */
+        unsigned long long st_rdev;        /* Device number, if device.  */
+        unsigned long long __pad1;
+        long long          st_size;        /* Size of file, in bytes.  */
+        int                st_blksize;     /* Optimal block size for I/O.  */
+        int                __pad2;
+        long long          st_blocks;      /* Number 512-byte blocks allocated. */
+        int                st_atime;       /* Time of last access.  */
+        unsigned int       st_atime_nsec;
+        int                st_mtime;       /* Time of last modification.  */
+        unsigned int       st_mtime_nsec;
+        int                st_ctime;       /* Time of last status change.  */
+        unsigned int       st_ctime_nsec;
+        unsigned int       __unused4;
+        unsigned int       __unused5;
+};
+            </pre>
+            <p>----------------------------------------------------------------------------------------------------</p>
+            <p>②</p>
+            <pre class="code-bg0">
+my @primes = (
+    1,2,3,5,7,
+    11,13,17,19,23,
+    29,31,37,41,43,
+);
+            </pre>
+            <p>
+                <kbd>C</kbd>-<kbd>u</kbd> <kbd>M</kbd>-<kbd>x</kbd> <code class="elisp_defun">align-regexp</code> <kbd>RET</kbd>,
+                <code class="parea">,\(\s-*\)[0-9]</code>,
+                <code class="parea">1</code>,
+                <code class="parea">1</code>,
+                <code class="parea">y</code>
+            </p>
+            <pre class="code-bg0">
+my @primes = (
+    1,  2,  3,  5,  7,
+    11, 13, 17, 19, 23,
+    29, 31, 37, 41, 43,
+);
+            </pre>
+            <p>
+                <kbd>C</kbd>-<kbd>u</kbd> <kbd>M</kbd>-<kbd>x</kbd> <code class="elisp_defun">align-regexp</code> <kbd>RET</kbd>,
+                <code class="parea">\([0-9]+,\)</code>,
+                <code class="parea">-1</code>,
+                <code class="parea">1</code>,
+                <code class="parea">y</code>
+            </p>
+            <pre class="code-bg0">
+my @primes = (
+      1,  2,  3,  5,  7,
+     11, 13, 17, 19, 23,
+     29, 31, 37, 41, 43,
+);
+            </pre>
+            <p>----------------------------------------------------------------------------------------------------</p>
+            <p>③</p>
+            <pre class="code-bg0">
+California 423,970 km²
+Taiwan 36,008 km²
+Japan 377,944 km²
+Germany 357,021 km²
+Iraq 438,317 km²
+Iran 1,648,195 km²
+Korea (North+South) 219,140 km²
+Mexico 1,964,375 km²
+            </pre>
+            <p>
+                <kbd>C</kbd>-<kbd>u</kbd> <kbd>M</kbd>-<kbd>x</kbd> <code class="elisp_defun">align-regexp</code> <kbd>RET</kbd>,
+                <code class="parea">\(\s-*␣[0-9,]+\)</code>,
+                <code class="parea">-1</code>,
+                <code class="parea">1</code>,
+                <code class="parea">n</code>
+            </p>
+            <p>Or</p>
+            <p>
+                <kbd>C</kbd>-<kbd>u</kbd> <kbd>M</kbd>-<kbd>x</kbd> <code class="elisp_defun">align-regexp</code> <kbd>RET</kbd>,
+                <code class="parea">\(\s-+[[:digit:],]+\)</code>,
+                <code class="parea">-1</code>,
+                <code class="parea">1</code>,
+                <code class="parea">n</code>
+            </p>
+            <p>Or</p>
+            <p>
+                <kbd>C</kbd>-<kbd>u</kbd> <kbd>M</kbd>-<kbd>x</kbd> <code class="elisp_defun">align-regexp</code> <kbd>RET</kbd>,
+                <code class="parea">.*␣\(\s-*[0-9,]+\)</code>,
+                <code class="parea">-1</code>,
+                <code class="parea">0</code>,
+                <code class="parea">n</code>
+            </p>
+            <p>Or</p>
+            <p>
+                <kbd>C</kbd>-<kbd>u</kbd> <kbd>M</kbd>-<kbd>x</kbd> <code class="elisp_defun">align-regexp</code> <kbd>RET</kbd>,
+                <code class="parea">.*\(\s-*␣[0-9,]+\s-*\).*</code>,
+                <code class="parea">-1</code>,
+                <code class="parea">1</code>,
+                <code class="parea">n</code>
+            </p>
+            <pre class="code-bg0">
+California            423,970 km²
+Taiwan                 36,008 km²
+Japan                 377,944 km²
+Germany               357,021 km²
+Iraq                  438,317 km²
+Iran                1,648,195 km²
+Korea (North+South)   219,140 km²
+Mexico              1,964,375 km²
+            </pre>
+        </main>
+</div>
+    </div>
+    <div class="post-info">
+        <p>文章链接：<a href="https://gniuk.github.io/posts/20201118_emacs_align-regexp_explained_in_detail/" target="_blank">https://gniuk.github.io/posts/20201118_emacs_align-regexp_explained_in_detail/</a></p>
+        <p>发布/更新于：
+            <time datetime="2020-11-18 23:00:00">
+            2020-11-18 23:00
+            </time></p>
+        <p>版权声明：如无特别说明，本站文章均遵循 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">CC BY-NC-SA 4.0</a> 协议，转载请注明作者及出处。</p>
+    </div>
+        <div class="post-navigation no-print">
+        <div class="ui huge secondary stackable menu">
+        <div class="right menu">
+            <a class="post-nav-item post-nav-next item" href="../an_decent_keyboard_layout/" title="Next post">A decent and comfortable keyboard layout <i class="angle double right icon"></i></a>
+        </div>
+        </div>
+    </div>
+
+        <div id="gitalk-container" class="comments-block no-print"></div>
+</div>
+                    </div>
+                </main><div class="footer extra-block no-print">
+    <span class="footer_item">
+        <a href="../../pages/you-qing-lian-jie/">友情链接</a>
+    </span>
+    <span class="footer_item">
+        <a href="../../pages/liu-yan-ban/">留言板</a>
+    </span>
+    <span class="footer_item">
+        <a href="../../pages/ge-ren-dong-tai/">碎碎念</a>
+    </span>
+    </div>
+            <div class="footer social-link no-print">
+            <a href="https://github.com/gniuk" target="_blank"><i class="grey large github icon"></i></a>
+            <a href="http://weibo.com/bufugu/" target="_blank"><i class="grey large weibo icon"></i></a>
+            <a href="mailto://gniuk@sina.com" target="_blank"><i class="grey large mail icon"></i></a>
+            </div>
+        <div class="ui basic center aligned segment no-print">Contents © 2020         <a href="mailto:gniuk@sina.com">gniuk</a> - Powered by         <a href="https://getnikola.com" target="_blank" rel="nofollow">Nikola</a>         </div>
+
+            </div>
+            <div class="computer only three wide column no-print">
+                <div id="right-side">
+                </div>
+            </div>
+        </div>
+
+        <!-- GoStats JavaScript Based Code -->
+        <script type="text/javascript">(function(c,o,m,p,u,t,e){
+        c['GoStatsObject']=u;c[u]=c[u]||function(){(c[u].q=c[u].q||[]).push(arguments)},
+        c[u].l=1*new Date();t=o.createElement(m);t.async=1;t.src=p;
+        e=o.getElementsByTagName(m)[0];e.parentNode.insertBefore(t,e);
+        })(window,document,'script','//www.gostats.org/5.js','go');
+        go('init',100479892,{'img_counter_type':5,'img_image_type':1});go('send');</script><!-- End GoStats JavaScript Based Code --><script type="text/javascript" src="../../assets/js/jquery-3.3.1.min.js"></script><script type="text/javascript" src="../../assets/js/semantic.min.js"></script><script type="text/javascript" src="../../assets/js/jquery.fancybox.min.js"></script><script type="text/javascript" src="../../assets/js/cookie.min.js"></script><script>
+            $(document).ready(function(){
+                $(".ui.dropdown").dropdown();
+                $('.ui.accordion').accordion();
+                var newstr = $('.cookie.nag').text();
+                $('.cookie.nag').nag({
+                    key: 'globalnotice',
+                    value: newstr
+                  });
+                $('.image-reference').fancybox();
+            });
+        </script><script src="../../assets/js/md5.min.js"></script><script src="../../assets/js/gitalk.min.js"></script><script>
+        const gitalk = new Gitalk({
+            clientID: '8752a3ca551d6d5e3533',
+            clientSecret: '60adedc110f26be5e0969a5fb2c3fb0cecaf835a',
+            repo: 'gniuk.github.io',
+            owner: 'gniuk',
+            admin: ['gniuk'],
+            id: md5(window.location.pathname),
+            // facebook-like distraction free mode
+            distractionFreeMode: false
+        })
+        gitalk.render('gitalk-container')
+    </script>
+</body>
+</html>
