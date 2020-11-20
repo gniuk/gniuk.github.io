@@ -136,7 +136,13 @@
                 <code class="parea">1</code>,
                 <code class="parea">y</code>
                 <br>
-                This means make whatever character immediately after the last space aligned.
+                This means make whatever character immediately after the last space aligned.<br>
+                The regexp matches as follows. Notice the subtile difference of the matched part.<br>
+                <pre class="code-bg0">
+#define<span class="boxed0"><span class="code-plain0">    </span></span><span class="code-plain1">A</span><span class="boxed0"><span class="code-plain0">    </span></span><span class="code-plain1">0</span>x41<br>
+#define<span class="boxed0"><span class="code-plain0">  </span></span><span class="code-plain1">W</span>HAT_EVER<span class="boxed0"><span class="code-plain0">  </span></span><span class="code-plain1">0</span>x1BADB002<br>
+#define<span class="boxed0"><span class="code-plain0">     </span></span><span class="code-plain1">A</span>BCDE<span class="boxed0"><span class="code-plain0">     </span></span><span class="code-plain1">0</span>xabcde
+                </pre>
             </p>
             <h2>== Align to the right ==</h2>
             <p>Now let's talk about alignment to the right side. Say we need the following alignment.</p>
