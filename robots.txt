@@ -1,5 +1,0 @@
-Sitemap: https://gniuk.github.io/sitemapindex.xml
-
-User-Agent: *
-Disallow: /aria2/
-Host: gniuk.github.io
